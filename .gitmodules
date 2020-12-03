@@ -1,0 +1,6 @@
+[submodule "ProjectManager"]
+	path = ProjectManager
+	url = https://github.com/panzerox123/ProjectManager.git
+[submodule "ProjectManager-Frontend"]
+	path = ProjectManager-Frontend
+	url = https://github.com/panzerox123/ProjectManager-Frontend.git
