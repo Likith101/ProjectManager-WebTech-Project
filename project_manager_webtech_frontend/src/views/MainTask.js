@@ -13,6 +13,8 @@ class MainTask extends React.Component {
         this.tasks = []
         this.tkey = ""
         this.name = ""
+        this.comp = 0
+        this.color = ""
 
         this.state = {
             Id: this.props.taskId,
@@ -26,7 +28,7 @@ class MainTask extends React.Component {
             uncomDisplay: "none",
             Comments: this.comments,
             Tasks: this.tasks,
-            Time: Date.now(),
+            Completed : 0,
             bgColor: "#FF0000"
         }
 
@@ -54,7 +56,7 @@ class MainTask extends React.Component {
         this.tasks = temp.children
         this.name = temp.taskName
         this.comp = temp.taskStatus
-        this.color = this.colorHex(this.comp)
+        this.colorHex(this.comp)
 
         if(this.tasks.length === 0)
         {
@@ -63,8 +65,7 @@ class MainTask extends React.Component {
                 this.setState({
                     Name : this.name,
                     comDisplay: "none",
-                    uncomDisplay: "block",
-                    bgColor : this.color
+                    uncomDisplay: "block"
                 })
             }
             else
@@ -72,8 +73,7 @@ class MainTask extends React.Component {
                 this.setState({
                     Name : this.name,
                     comDisplay: "block",
-                    uncomDisplay: "none",
-                    bgColor : this.color
+                    uncomDisplay: "none"
                 })
             }
         }
@@ -86,7 +86,6 @@ class MainTask extends React.Component {
                 comDisplay: "none",
                 uncomDisplay: "none",
                 Tasks : this.tasks,
-                bgColor : this.color
             })
         }
 
@@ -104,10 +103,18 @@ class MainTask extends React.Component {
         this.tasks = temp.children
         this.name = temp.taskName
 
-        this.setState({
-            Name: this.name,
-            Tasks: this.tasks
-        })
+        var temp = await loadST(this.props.taskId)
+        this.tasks = temp.children
+        this.name = temp.taskName
+        
+        var temp1 = "none"
+        if(this.state.pDisplay !== temp1)
+        {
+            this.setState ({
+                Name : this.name,
+                Tasks : this.tasks
+            })
+        }
     }
 
     async completed() {
@@ -270,8 +277,12 @@ class MainTask extends React.Component {
             sDisplay: "block",
             minDisplay: "block",
             maxDisplay: "none",
+            comDisplay: "none",
+            uncomDisplay: "none",
             Tasks: this.tasks
         })
+
+        this.complete()
     }
 
     minimiseSubTasks() {
@@ -296,29 +307,51 @@ class MainTask extends React.Component {
 
         var ref = []
 
-        for (var i = 0; i < this.tasks.length; i++) {
-            if (this.tasks[i] !== key) {
+        for(var i = 0; i < this.tasks.length; i++)
+        {
+            if(this.tasks[i] !== key)
+            {
                 ref.push(this.tasks[i])
             }
-            else {
+            else
+            {
                 await deleteST(this.tasks[i])
             }
         }
 
         this.tasks = ref
 
-        if (this.tasks.length === 0) {
-            this.setState({
-                sDisplay: "none",
-                minDisplay: "none",
-                Tasks: this.tasks
+        if(this.tasks.length === 0)
+        {
+            if(this.comp === 100)
+            {
+                this.setState({
+                    sDisplay : "none",
+                    minDisplay : "none",
+                    comDisplay : "none",
+                    uncomDisplay : "block",
+                    Tasks: this.tasks
+                })
+            }
+            else
+            {
+                this.setState({
+                    sDisplay : "none",
+                    minDisplay : "none",
+                    comDisplay : "block",
+                    uncomDisplay : "none",
+                    Tasks: this.tasks
+                })
+            }
+        }
+        else
+        {
+            this.setState ({
+                Tasks : this.tasks
             })
         }
-        else {
-            this.setState({
-                Tasks: this.tasks
-            })
-        }
+
+        this.complete()
     }
 
     render() {
@@ -340,17 +373,17 @@ class MainTask extends React.Component {
                             >
                             </FormControl>
                         </InputGroup>
-                        <Button variant="success" onClick={this.editNameSubmit} style={{ display: this.state.formDisplay, fontFamily: "'Roboto Mono', monospace" }}>Submit</Button>
+                        <Button variant="success" onClick={this.editNameSubmit} style={{ display: this.state.formDisplay, fontFamily: "'Roboto Mono', monospace" }}><img className="Icons" src={process.env.PUBLIC_URL+'/Submit.png'} alt=""></img>Submit</Button>
                     </Card.Body>
                     <Card.Footer>
                         <ButtonGroup className="mb-2">
-                            <Button variant="danger" onClick={this.deleteTask} style={{ fontFamily: "'Roboto Mono', monospace" }}>Delete</Button>
-                            <Button variant="dark" onClick={this.minimiseSubTasks} style={{ display: this.state.minDisplay, fontFamily: "'Roboto Mono', monospace" }}>Hide Tasks</Button>
-                            <Button variant="dark" onClick={this.maximiseSubTasks} style={{ display: this.state.maxDisplay, fontFamily: "'Roboto Mono', monospace" }}>Show Tasks</Button>
-                            <Button variant="dark" onClick={this.editName} style={{ display: this.state.pDisplay, fontFamily: "'Roboto Mono', monospace" }}>Edit Task</Button>
-                            <Button variant="primary" onClick={this.completed} style={{display: this.state.comDisplay, fontFamily:"'Roboto Mono',monospace"}}>Complete</Button>
-                            <Button variant="primary" onClick={this.uncompleted} style={{display: this.state.uncomDisplay, fontFamily:"'Roboto Mono', monospace"}}>Incomplete</Button>
-                            <Button variant="success" onClick={this.newSubTask} style={{ fontFamily: "'Roboto Mono', monospace" }}>Add Subtask</Button>
+                            <Button variant="danger" onClick={this.deleteTask} style={{ fontFamily: "'Roboto Mono', monospace" }}><img className="Icons"src={process.env.PUBLIC_URL+'/Delete.png'} alt=""></img>Delete</Button>
+                            <Button variant="dark" onClick={this.minimiseSubTasks} style={{ display: this.state.minDisplay, fontFamily: "'Roboto Mono', monospace" }}><img className="Icons" src={process.env.PUBLIC_URL+'/Minimise.png'} alt=""></img>Hide Tasks</Button>
+                            <Button variant="dark" onClick={this.maximiseSubTasks} style={{ display: this.state.maxDisplay, fontFamily: "'Roboto Mono', monospace" }}><img className="Icons" src={process.env.PUBLIC_URL+'/Maximise.png'} alt=""></img>Show Tasks</Button>
+                            <Button variant="dark" onClick={this.editName} style={{ display: this.state.pDisplay, fontFamily: "'Roboto Mono', monospace" }}><img className="Icons" src={process.env.PUBLIC_URL+'/Edit.png'} alt=""></img>Edit Task</Button>
+                            <Button variant="primary" onClick={this.completed} style={{display: this.state.comDisplay, fontFamily:"'Roboto Mono',monospace"}}><img className="Icons" src={process.env.PUBLIC_URL+'/Completed.png'} alt=""></img>Complete</Button>
+                            <Button variant="primary" onClick={this.uncompleted} style={{display: this.state.uncomDisplay, fontFamily:"'Roboto Mono', monospace"}}><img className="Icons" src={process.env.PUBLIC_URL+'/Uncompleted.png'} alt=""></img>Not Complete</Button>
+                            <Button variant="success" onClick={this.newSubTask} style={{ fontFamily: "'Roboto Mono', monospace" }}><img className="Icons" src={process.env.PUBLIC_URL+'/Add.png'} alt=""></img>Add Subtask</Button>
                         </ButtonGroup>
                     </Card.Footer>
                 </Card>

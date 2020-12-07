@@ -215,7 +215,7 @@ router.post('/:taskId/:taskStatus/updateST', auth, async (req, res) => {
         return res.status(404).send("Task not found")
     }
 
-    if (!isNaN(parseFloat(req.params.taskId))) {
+    if (!isNaN(parseFloat(req.params.taskStatus))) {
         task.taskStatus = req.params.taskStatus
         await task.save()
     }
